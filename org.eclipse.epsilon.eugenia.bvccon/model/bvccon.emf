@@ -1,0 +1,85 @@
+@namespace(uri="bvccon", prefix="bvccon")
+@gmf
+package bvccon;
+
+@gmf.diagram(foo="bar")
+class NFRModel {
+  id attr String[1] ~id;
+  val NFRSoftgoal[+] nfrs;
+  val NFRSoftgoalContribution[+] contributions;
+  val NFRSoftgoalContributionOperational[+] contributionsOperationals;
+  val NFROperationalization[+] nfroperationalizations;
+}
+
+/* -- Comentei esta classe porque estou transformando NFRSoftgoalPriority em 
+** -- um atributo dentro de NFRSoftgoal, para facilitar o processo de criação
+** -- da ferramenta evitando a criação de mais um nó que o usuário tem que lidar,
+** -- diminuindo também a complexidade do modelo e permitindo que o próprio
+** -- usuário defina manualmente as prioridades de seus NFRSoftgoals.
+**class NFRSoftgoalPriority {
+**  !ordered attr EBigInteger[1] value = "1";
+**}
+*/
+
+class NFRElement {
+  !ordered attr String[1] name;
+  id attr String[1] ~id;
+}
+
+class NFRLink {
+}
+
+@gmf.node(label.placement="internal", label.icon="false", label="name", size="100,30", border.color="0,0,0", border.style="dash")
+class NFRSoftgoal extends NFRElement {
+  attr String[1] NFRSoftgoalPriority;
+}
+
+@gmf.node(figure="rectangle", label.placement="internal", label.icon="false", label="name", size="100,30", border.color="0,0,0")
+class NFROperationalization extends NFRElement {
+}
+
+class NFRSoftgoalContribution extends NFRLink {
+  !ordered ref NFRSoftgoal[1] source;
+  !ordered ref NFRSoftgoal[1] target;
+}
+
+class NFRSoftgoalContributionOperational extends NFRLink{
+  !ordered ref NFROperationalization[1] source;
+  !ordered ref NFRSoftgoal[1] target;
+}
+
+@gmf.link(target.decoration="arrow", source.decoration="none", target.decoration="none", source="source", target="target", color="0,0,0")
+class BreakContribution extends NFRSoftgoalContributionOperational {
+	attr String name="--";
+}
+
+@gmf.link(target.decoration="arrow", source.decoration="none", target.decoration="none", source="source", target="target", color="0,0,0")
+class MakeContribution extends NFRSoftgoalContributionOperational {
+	attr String name="++";
+}
+
+@gmf.link(target.decoration="arrow", source.decoration="none", target.decoration="none", source="source", target="target", color="0,0,0")
+class OrContribution extends NFRSoftgoalContribution {
+	attr String name="OR";
+}
+
+@gmf.link(target.decoration="arrow", source.decoration="none", target.decoration="none", source="source", target="target", color="0,0,0")
+class AndContribution extends NFRSoftgoalContribution {
+	attr String name="AND";
+}
+
+@gmf.link(target.decoration="arrow", source.decoration="none", target.decoration="none", source="source", target="target", color="0,0,0")
+class EqualContribution extends NFRSoftgoalContributionOperational {
+	attr String name="=";
+}
+
+@gmf.link(target.decoration="arrow", source.decoration="none", target.decoration="none", source="source", target="target", color="0,0,0")
+class HurtContribution extends NFRSoftgoalContributionOperational {
+	attr String name="-";
+}
+
+@gmf.link(target.decoration="arrow", source.decoration="none", target.decoration="none", source="source", target="target", color="0,0,0")
+class HelpContribution extends NFRSoftgoalContributionOperational {
+	attr String name="+";
+}
+

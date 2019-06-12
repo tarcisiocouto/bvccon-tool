@@ -1,0 +1,90 @@
+// Renomeando a peleta Connections para ser NFR Links
+var pallet := GmfTool!Palette.all.first();
+var toolGroupConnections = GmfTool!ToolGroup.all.selectOne(r|r.title = 'Connections');
+toolGroupConnections.title := 'NFR Links';
+pallet.tools.add(toolGroupConnections);
+
+// Renomeando a paleta de Objects para ser NFR Softgoal
+var toolGroupObjects = GmfTool!ToolGroup.all.selectOne(r|r.title = 'Objects');
+toolGroupObjects.title := 'NFR Softgoal';
+pallet.tools.add(toolGroupObjects);
+
+
+//Inserindo os Labels nos Links de Relacionamento
+var relationshipLink = ECore!EClass.all.selectOne(c|c.name = 'AndContribution');
+relationshipLink.createLinkLabel('name');
+
+var relationshipLink = ECore!EClass.all.selectOne(c|c.name = 'OrContribution');
+relationshipLink.createLinkLabel('name');
+
+var relationshipLink = ECore!EClass.all.selectOne(c|c.name = 'BreakContribution');
+relationshipLink.createLinkLabel('name');
+
+var relationshipLink = ECore!EClass.all.selectOne(c|c.name = 'MakeContribution');
+relationshipLink.createLinkLabel('name');
+
+var relationshipLink = ECore!EClass.all.selectOne(c|c.name = 'EqualContribution');
+relationshipLink.createLinkLabel('name');
+
+var relationshipLink = ECore!EClass.all.selectOne(c|c.name = 'HurtContribution');
+relationshipLink.createLinkLabel('name');
+
+var relationshipLink = ECore!EClass.all.selectOne(c|c.name = 'HelpContribution');
+relationshipLink.createLinkLabel('name');
+
+
+
+operation ECore!EClass createLinkLabel(attribute:String) {
+
+  var labelName;
+  if (attribute = 'cardinality') {
+	labelName = self.name + 'CardinalityLabel';
+  } else {
+	labelName = self.name + 'NameLabel';
+  }
+  
+  -- Create the figure descriptor and the label
+  var labelFigureDescriptor = createFigureDescriptor(labelName + 'Figure');
+  var label = new GmfGraph!Label;
+  label.name = labelName;
+  label.text = '';
+  labelFigureDescriptor.actualFigure = label;
+  
+  -- Create the diagram label
+  var diagramLabel = new GmfGraph!DiagramLabel;
+  diagramLabel.figure = labelFigureDescriptor;
+  diagramLabel.name = labelName;
+  diagramLabel.elementIcon = false;
+  GmfGraph!Canvas.all.first().labels.add(diagramLabel);
+  
+  -- Specify if the label will be placed at the beginning/end of the link
+  var alignmentFacet = new GmfGraph!AlignmentFacet;
+  if (attribute = 'cardinality') {
+    alignmentFacet.alignment = GmfGraph!Alignment#END;
+  } else {
+    alignmentFacet.alignment = GmfGraph!Alignment#CENTER;
+  }//if
+  diagramLabel.facets.add(alignmentFacet);
+  
+  -- Specify how far the label should be from the line
+  var labelOffsetFacet = new GmfGraph!LabelOffsetFacet;
+  labelOffsetFacet.x = 5;
+  labelOffsetFacet.y = 5;
+  diagramLabel.facets.add(labelOffsetFacet);
+  
+  -- Create the label/attribute mapping in the .gmfmap model
+  var featureLabelMapping = new GmfMap!FeatureLabelMapping;
+  featureLabelMapping.diagramLabel = diagramLabel;
+  
+  featureLabelMapping.features.add(self.eAllStructuralFeatures.selectOne(sf|sf.name = attribute));
+  featureLabelMapping.readOnly = true;
+  var linkMapping = GmfMap!LinkMapping.all.selectOne(lm|lm.domainMetaElement = self);
+  linkMapping.labelMappings.add(featureLabelMapping);  
+}
+
+operation createFigureDescriptor(name : String) {
+  var figureDescriptor = new GmfGraph!FigureDescriptor;
+  figureDescriptor.name = name;
+  GmfGraph!FigureGallery.all.first().descriptors.add(figureDescriptor);
+  return figureDescriptor;
+}

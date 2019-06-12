@@ -1,0 +1,58 @@
+@Ecore(invocationDelegates="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot", settingDelegates="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot", validationDelegates="http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot")
+@namespace(uri="http://portal.cin.ufpe.br/ler/Projects/BVCCoN/BVCCoN-NFR.aspx", prefix="bvcconnfr")
+package bvcconnfr;
+
+class NFRModel {
+  id attr String[1] ~id;
+  val NFRSoftgoal[+] nfrs;
+  val NFRSoftgoalContribution[+] contributions;
+}
+
+class NFRSoftgoalPriority {
+  !ordered attr EBigInteger[1] value = "1";
+}
+
+class NFRElement {
+  !ordered attr String[1] name;
+  id attr String[1] ~id;
+}
+
+class NFRLink {
+}
+
+class NFRSoftgoal extends NFRElement {
+  !ordered val NFRSoftgoalPriority[1] priority;
+}
+
+class NFROperationalization extends NFRElement {
+}
+
+@Ecore(constraints="targetNFR andOrDecomposition notTheSameTargetAndSource")
+@"http://www.eclipse.org/emf/2002/Ecore/OCL/Pivot"(targetNFR="target.oclIsKindOf(NFRSoftgoal)", andOrDecomposition="if self.oclIsKindOf(AndContribution) or self.oclIsKindOf(OrContribution) then source.oclIsKindOf(NFRSoftgoal) else source.oclIsKindOf(NFROperationalization) endif", notTheSameTargetAndSource="source <> target")
+class NFRSoftgoalContribution extends NFRLink {
+  !ordered ref NFRElement[1] source;
+  !ordered ref NFRElement[1] target;
+  !ordered attr String[1] label;
+}
+
+class BreakContribution extends NFRSoftgoalContribution {
+}
+
+class MakeContribution extends NFRSoftgoalContribution {
+}
+
+class OrContribution extends NFRSoftgoalContribution {
+}
+
+class AndContribution extends NFRSoftgoalContribution {
+}
+
+class EqualContribution extends NFRSoftgoalContribution {
+}
+
+class HurtContribution extends NFRSoftgoalContribution {
+}
+
+class HelpContribution extends NFRSoftgoalContribution {
+}
+
